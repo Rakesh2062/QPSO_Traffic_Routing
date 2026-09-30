@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Forum&family=Sora:wght@100..800&family=Yanone+Kaffeesatz:wght@200..700&display=swap');
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: 'Forum', Georgia, serif;
+  --font-display: 'Sora', sans-serif;
+  --font-heading: 'Forum', Georgia, serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --font-sora: 'Sora', sans-serif;
+  --font-yanone: 'Yanone Kaffeesatz', sans-serif;
+  --font-forum: 'Forum', Georgia, serif;
+
+  /* Theme Color Mappings based on palette and dark background (#03120E) */
+  --color-slate-950: #03120E;
+  --color-slate-900: #071D17;
+  --color-slate-800: #0E2B23;
+  --color-slate-700: #1B3E34;
+  --color-slate-600: #738290;
+
+  /* Font shades of white */
+  --color-slate-500: #94A3B8;
+  --color-slate-400: #CBD5E1;
+  --color-slate-300: #E2E8F0;
+  --color-slate-200: #F1F5F9;
+  --color-slate-100: #F8FAFC;
+  --color-white: #FFFFFF;
+
+  --color-cyan-950: #0C2B22;
+  --color-cyan-900: #164236;
+  --color-cyan-800: #738290;
+  --color-cyan-700: #889BB7;
+  --color-cyan-600: #A1B5D8;
+  --color-cyan-500: #C2D8B9;
+  --color-cyan-400: #E4F0D0;
+  --color-cyan-300: #FFFFFF;
+
+  --color-indigo-950: #0A1F26;
+  --color-indigo-900: #143540;
+  --color-indigo-800: #2C5261;
+  --color-indigo-500: #A1B5D8;
+  --color-indigo-600: #738290;
+  --color-indigo-400: #BACCE4;
+
+  --color-emerald-950: #0A2B1D;
+  --color-emerald-900: #134B34;
+  --color-emerald-800: #216F4F;
+  --color-emerald-500: #C2D8B9;
+  --color-emerald-400: #E4F0D0;
+  --color-emerald-300: #FFFFFF;
+
+  --color-amber-950: #2E2108;
+  --color-amber-900: #523C0F;
+  --color-amber-500: #F59E0B;
+  --color-amber-400: #FCD34D;
+
+  --color-rose-950: #2D0B12;
+  --color-rose-900: #571624;
+  --color-rose-500: #F43F5E;
+  --color-rose-400: #FDA4AF;
+}
+
+:root {
+  --font-dm: 'DM Sans', sans-serif;
+  --font-sora: 'Sora', sans-serif;
+  --font-forum: 'Forum', Georgia, serif;
+  --font-yanone: 'Yanone Kaffeesatz', sans-serif;
+  --background: #03120E;
+  --foreground: #FFFFFF;
+  --card: #071D17;
+  --card-border: #1B3E34;
+  --primary: #738290;
+  --secondary: #A1B5D8;
+  --accent-success: #E4F0D0;
+  --accent-highlight: #C2D8B9;
+  --accent-cyan: #738290;
+  --accent-indigo: #A1B5D8;
+  --accent-emerald: #C2D8B9;
+  --accent-amber: #E4F0D0;
+  --accent-rose: #F43F5E;
+}
+
+html,
+body {
+  background-color: #03120E;
+  color: #FFFFFF;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display,
+.font-heading {
+  font-family: 'Forum', Georgia, serif;
+  letter-spacing: 0.02em;
+  color: #FFFFFF;
+}
+
+p, span, label, td, th, li, a, button, input, select, textarea {
+  color: inherit;
+}
+
+.font-dm {
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+.font-sora {
+  font-family: 'Sora', sans-serif !important;
+}
+
+.font-forum {
+  font-family: 'Forum', Georgia, serif !important;
+}
+
+.font-yanone {
+  font-family: 'Yanone Kaffeesatz', sans-serif !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #03120E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1B3E34;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #738290;
+}
+
+/* Glassmorphism helpers for dark green background */
+.glass-panel {
+  background: rgba(7, 29, 23, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(161, 181, 216, 0.15);
+}
+
+.glass-panel-glow {
+  background: rgba(7, 29, 23, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(194, 216, 185, 0.3);
+  box-shadow: 0 4px 25px -2px rgba(194, 216, 185, 0.15);
+}
+
+/* Quantum pulse glowing effect */
+@keyframes quantum-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 8px #C2D8B9);
+  }
+}
+
+.animate-quantum {
+  animation: quantum-pulse 2.5s ease-in-out infinite;
+}
+
+/* Leaflet Container styling */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background-color: #03120E !important;
+  border-radius: 0.75rem;
+}
