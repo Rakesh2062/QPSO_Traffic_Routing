@@ -17,15 +17,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-build/
+# Build / Distribution
+/build/
+/dist/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
