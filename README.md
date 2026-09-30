@@ -1,76 +1,220 @@
-# QPSO-Based Traffic Routing Platform — Build Prompts
+# QPSO Traffic Routing
 
-This folder contains structured prompts for building the platform described
-in the Problem Statement: a quantum-inspired metaheuristic (QPSO) framework
-for solving Vehicle Routing Problems and shortest-path problems under
-simulated traffic, benchmarked against classical metaheuristics and exact
-methods.
+A full-stack optimization platform for traffic-aware routing and vehicle assignment using a quantum-inspired particle swarm optimization (QPSO) engine. The project compares QPSO against classical baselines such as PSO, genetic algorithms, ant colony optimization, and OR-Tools on synthetic and road-network scenarios.
 
-## Files in this folder
+## Overview
 
-| File | Purpose |
-|---|---|
-| `00-database-schema.md` | PostgreSQL schema — tables, relationships, migration order |
-| `01-backend-fastapi-qpso.md` | FastAPI backend, QPSO engine, baseline wrappers, job orchestration |
-| `02-fitness-function.md` | Standalone spec for the QPSO fitness function (`fitness.py`) |
-| `03-redis-integration.md` | Live progress streaming, job status cache, cancellation flag |
-| `04-frontend-nextjs.md` | Next.js frontend — pages, components, API/WebSocket contracts |
+This project combines:
 
-## Why this order matters
+- A FastAPI backend for scenario creation, benchmarking, and optimization job orchestration
+- A QPSO-based routing engine for dynamic traffic and fleet scheduling problems
+- Redis-backed progress tracking and cancellation signals for long-running jobs
+- PostgreSQL persistence for scenarios, results, and convergence history
+- A Next.js frontend for scenario creation, benchmarking dashboards, and result visualization
 
-Feeding all of these to an agent at once tends to produce a wide, shallow
-result — a bit of everything, nothing fully wired together. Building in
-this sequence means each stage has something real (not guessed) to build
-against:
+The system is designed to let users build traffic graphs, define routing scenarios, run multiple optimization algorithms, and compare convergence, route quality, fitness, and runtime metrics.
 
-1. **Database schema first.** Every later prompt references specific table
-   names, field names, and JSONB shapes. Generate the SQLAlchemy models and
-   run the Alembic migration before moving on — confirm the tables actually
-   exist.
+## Project structure
 
-2. **Backend + QPSO engine second.** Paste the database schema as context
-   alongside this prompt so the agent writes real queries against real
-   columns instead of inventing its own schema mid-build.
+```text
+.
+├── README.md
+├── requirements.txt
+├── alembic.ini
+├── pytest.ini
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── benchmarking/
+│   │   ├── core/
+│   │   ├── engine/
+│   │   ├── jobs/
+│   │   └── main.py
+│   ├── alembic/
+│   ├── db/
+│   ├── models/
+│   ├── tests/
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   ├── next.config.ts
+│   └── ...
+└── ...
+```
 
-3. **Fitness function as a separate, later task — not part of step 2.**
-   Once the QPSO swarm loop exists and is testable, hand over
-   `02-fitness-function.md` as its own tightly scoped task. This is the one
-   piece where a specific algorithm matters more than "something
-   reasonable," so it shouldn't be built while the agent is also juggling
-   routing endpoints.
+## Key capabilities
 
-4. **Redis integration as a follow-up patch, not bundled into the backend
-   build.** Get the core API and QPSO engine working synchronously first
-   (even without live progress). Then ask the agent to "add live progress
-   streaming and job cancellation to the existing job runner." This makes
-   it easy to tell whether a bug is in the algorithm or in the plumbing.
+- Traffic routing on graph-based networks using objective weights and constraints
+- Multiple optimization algorithms in one evaluation pipeline
+- Scenario persistence and historical result retrieval
+- Benchmark summaries with aggregated fitness and comparative improvement metrics
+- Live job status polling and cancellation flow over Redis
+- Visual dashboard for graph/studio views, convergence charts, and benchmark output
 
-5. **Frontend last.** By this point the API contracts (REST shapes,
-   WebSocket message format) are real and tested. Paste the actual working
-   endpoint responses or finalized Pydantic schemas alongside the frontend
-   prompt, not the earlier guessed contract.
+## Tech stack
 
-## Checkpoint instruction
+### Backend
 
-Add this to every prompt when handing it to an agent, regardless of stage:
+- Python 3.11+
+- FastAPI
+- SQLAlchemy + AsyncPG
+- Alembic migrations
+- Redis
+- NetworkX + NumPy
+- OR-Tools
+- Pytest
 
-> After implementing this, list what you built, what you stubbed or mocked,
-> and what's still needed to integrate with the next component.
+### Frontend
 
-This surfaces silently deferred work before you move to the next stage,
-rather than discovering it later when integration breaks.
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS
+- Recharts
+- Leaflet
+- Zustand state management
 
-## Testing gate between stages
+## Prerequisites
 
-Don't move to the next prompt until the current one passes a real check:
+Before running the app locally, install:
 
-- [ ] Migrations applied, tables exist and match the schema
-- [ ] QPSO engine tested standalone against a synthetic graph (fixed seed →
-      reproducible fitness trajectory)
-- [ ] API endpoints hit directly (curl/Postman) with real responses
-- [ ] Redis pub/sub and job cancellation verified against a running job
-- [ ] Frontend pointed at the live backend, not mock data
+- Python 3.11+
+- Node.js 20+
+- PostgreSQL
+- Redis
 
-Slower than "generate everything at once," but it's the difference between
-a demo that works and one that only looks like it works until the second
-button is clicked.
+## Local setup
+
+### 1) Clone and install backend dependencies
+
+```bash
+cd "D:\Codes\QPSO Traffic Routing"
+python -m venv .venv
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+pip install -r backend\requirements.txt
+```
+
+### 2) Configure environment variables
+
+Create a `.env` file in the project root (or in the backend working directory depending on where the app reads settings from). The app expects values similar to:
+
+```env
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/qpso_routing
+REDIS_URL=redis://localhost:6379
+ENVIRONMENT=development
+CORS_ORIGINS=http://localhost:3000
+```
+
+If your runtime uses the application settings object directly, ensure the values match the names used in `backend/app/core/config.py`.
+
+### 3) Start PostgreSQL and Redis
+
+Make sure a local PostgreSQL instance is running and a database named `qpso_routing` exists. Then start Redis on its default port (`6379`).
+
+### 4) Run the backend
+
+```bash
+cd "D:\Codes\QPSO Traffic Routing"
+.\.venv\Scripts\Activate.ps1
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+The API will be available at:
+
+- http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- Health checks: http://localhost:8000/health
+
+### 5) Run the frontend
+
+```bash
+cd "D:\Codes\QPSO Traffic Routing\frontend"
+npm install
+npm run dev
+```
+
+Open:
+
+- http://localhost:3000
+
+## Backend API overview
+
+The FastAPI app exposes routes for scenario execution, benchmarking, and result access.
+
+### System endpoints
+
+- `GET /` — API metadata
+- `GET /health` — backend health and dependency status
+- `GET /db-health` — database and Redis status
+
+### Scenario endpoints
+
+- `POST /api/scenarios` — create and queue a scenario job
+- `GET /api/scenarios/{scenario_id}` — fetch current job status
+- `GET /api/scenarios/{scenario_id}/results` — retrieve algorithm outputs and convergence history
+- `POST /api/scenarios/{scenario_id}/cancel` — request cancellation
+- `GET /api/scenarios/presets/all` — preset scenario definitions
+
+### Benchmark endpoints
+
+- `GET /api/benchmark` — aggregated benchmark statistics across historical runs
+
+## Core backend modules
+
+- `backend/app/engine/` — graph model, traffic simulation, baseline algorithms, and QPSO modules
+- `backend/app/jobs/` — job runner and worker orchestration
+- `backend/app/api/` — endpoint definitions and contract handlers
+- `backend/app/benchmarking/` — metric aggregation and comparison logic
+- `backend/models/` — SQLAlchemy models for graphs, scenarios, runs, and convergence data
+- `backend/alembic/` — migration history and schema changes
+
+## Frontend overview
+
+The frontend includes pages for:
+
+- scenario creation and configuration
+- graph visualization and route studio views
+- result dashboards and benchmark comparison charts
+- historical scenario review
+- settings and configuration management
+
+This is implemented through the app router structure under `frontend/src/app` and supporting chart/map components under `frontend/src/components`.
+
+## Testing
+
+Run Python tests from the project root:
+
+```bash
+cd "D:\Codes\QPSO Traffic Routing"
+pytest
+```
+
+Run frontend validation:
+
+```bash
+cd "D:\Codes\QPSO Traffic Routing\frontend"
+npm run lint
+npm run build
+```
+
+## Notes
+
+- The backend automatically creates database tables during startup in development mode, while Alembic remains available for migration-based schema management.
+- Redis is used for short-lived job status caching and cancellation flags during long-running optimization tasks.
+- Production deployments should use environment-specific credentials and secure secret management for database and Redis access.
+
+## Future improvements
+
+Potential enhancements for the project include:
+
+- stronger persistence and audit history for scenarios and param sets
+- richer optimization benchmarking and statistical reporting
+- deployment automation with Docker Compose or Kubernetes
+- more advanced traffic simulation fidelity and larger graph workloads
+- additional result exports and downloadable benchmark reports
+
+## License
+
+This project is currently configured as a local development workspace without a formal license file. If you plan to distribute or deploy it publicly, add a license such as MIT or Apache 2.0 before release.
